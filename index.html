@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MrEngyls ✓</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI",Tahoma,sans-serif; }
+  html,body { height:100%; overflow:hidden; }
+
+  /* Красные анимированные обои */
+  #bg {
+    position:fixed; inset:0; z-index:0;
+    background:linear-gradient(45deg,#7a0000,#ff1a1a,#330000,#e60000,#5c0000);
+    background-size:400% 400%;
+    animation:flow 18s ease infinite;
+  }
+  @keyframes flow {
+    0%{background-position:0% 50%}
+    25%{background-position:100% 50%}
+    50%{background-position:100% 100%}
+    75%{background-position:0% 100%}
+    100%{background-position:0% 50%}
+  }
+  #bg::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 20% 30%, rgba(255,80,80,.35), transparent 40%),
+               radial-gradient(circle at 80% 70%, rgba(255,0,0,.3), transparent 45%);
+    animation:pulse 9s ease-in-out infinite alternate;
+  }
+  @keyframes pulse { from{opacity:.4} to{opacity:1} }
+
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:5;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 20px;
+  }
+  .bars{ cursor:pointer; width:34px; height:26px; display:flex; flex-direction:column; justify-content:space-between; }
+  .bars span{ display:block; height:4px; background:#fff; border-radius:3px; box-shadow:0 0 8px rgba(255,0,0,.8); }
+  .brand{ color:#fff; font-weight:700; font-size:20px; letter-spacing:1px; text-shadow:0 0 12px rgba(255,0,0,.9); }
+
+  .center{ position:fixed; inset:0; z-index:4; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+  .center h1{ color:#fff; font-size:42px; text-shadow:0 0 18px rgba(255,0,0,1); margin-bottom:28px; text-align:center; }
+  .btn{
+    cursor:pointer; border:none; border-radius:12px; padding:14px 26px;
+    font-size:16px; font-weight:700; color:#fff;
+    background:linear-gradient(135deg,#ff2b2b,#9b0000);
+    box-shadow:0 8px 24px rgba(255,0,0,.5); transition:.2s;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,0,0,.7); }
+  .btn.ghost{ background:transparent; border:2px solid #fff; box-shadow:none; }
+  .btn.small{ padding:10px 18px; font-size:14px; }
+
+  /* Выпадающие окна */
+  .pop{
+    position:fixed; z-index:20; display:none;
+    background:rgba(20,0,0,.92); backdrop-filter:blur(8px);
+    border:1px solid rgba(255,60,60,.5); border-radius:16px;
+    box-shadow:0 12px 40px rgba(0,0,0,.7); color:#fff; padding:18px; min-width:260px;
+  }
+  .pop h3{ margin-bottom:14px; font-size:18px; color:#ff5a5a; }
+  .pop.open{ display:block; }
+  #downloadPop{ top:64px; right:20px; }
+  #menuPop{ top:64px; left:20px; }
+  #menuPop .btn, #downloadPop .btn{ display:block; width:100%; margin-bottom:10px; text-align:left; }
+  #engylsopPop{ top:50%; left:50%; transform:translate(-50%,-50%); width:320px; max-height:80vh; overflow:auto; }
+  #accPop, #miniPop, #pubPop, #searchPop, #projPop{
+    top:50%; left:50%; transform:translate(-50%,-50%); width:340px; max-height:88vh; overflow:auto;
+  }
+
+  .field{ width:100%; margin-bottom:12px; }
+  .field label{ display:block; font-size:13px; color:#ffb3b3; margin-bottom:5px; }
+  .field input{ width:100%; padding:10px; border-radius:8px; border:1px solid #ff5a5a55; background:#1a0000; color:#fff; font-size:14px; }
+  .closeX{ position:absolute; top:10px; right:14px; cursor:pointer; color:#ff8a8a; font-size:20px; }
+
+  .projItem, .resItem{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px; border:1px solid #ff5a5a33; border-radius:10px; margin-bottom:10px; background:#250000;
+  }
+  .projItem .meta{ font-size:13px; }
+  .uname{ color:#ff7a7a; font-weight:700; }
+  .hint{ font-size:12px; color:#ffb3b3; margin-top:10px; line-height:1.5; }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:50;
+    background:#111; color:#fff; padding:12px 22px; border-radius:30px; border:1px solid #ff5a5a;
+    opacity:0; transition:.3s; pointer-events:none;
+  }
+  .toast.show{ opacity:1; }
+  .red-button {
+      display: inline-block;
+      padding: 18px 42px;
+      background: #e22b2b;
+      color: #fff;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 600;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(226,43,43,.45);
+      transition: transform .12s ease, background .2s ease;
+    }
+    .red-button:hover {
+      background: #ff3b3b;
+      transform: translateY(-2px);
+    }
+    .red-button:active {
+      transform: translateY(1px);
+      background: #c41f1f;
+    }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+
+<div class="topbar">
+  <div class="bars" onclick="toggle('menuPop')">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="brand">Mr.Engyls</div>
+</div>
+
+<div class="center">
+  <h1>Mr.Engyls</h1>
+ 
+</div>
+
+<!-- Окно версий -->
+<div class="pop" id="downloadPop">
+  <span class="closeX" onclick="toggle('downloadPop')">×</span>
+  <h3>Engylsdroid — версии</h3>
+  <button class="btn" onclick="downloadApp('0.0.1_Alpha')">0.0.1_Alpha</button>
+</div>
+
+<!-- Меню гамбургера -->
+<div class="pop" id="menuPop">
+  <span class="closeX" onclick="toggle('menuPop')">×</span>
+  <h3>Меню</h3>
+  <button class="btn" onclick="openLink('http://hungry-circle-45mp.chatium.ru/hungryCircle')">HUNGRY CIRCLE</button>
+  <button class="btn" onclick="openEngylsop()">ENGYLSOP WORLD</button>
+  <a class="red-button" href="alexb612.html">alexb612</a>
+</div>
+
+<!-- ENGYLSOP WORLD -->
+<div class="pop" id="engylsopPop">
+  <span class="closeX" onclick="toggle('engylsopPop')">×</span>
+  <h3>ENGYLSOP WORLD</h3>
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="btn small" style="flex:1" onclick="show('searchPop')">ПОИСК</button>
+    <button class="btn small" style="flex:1" onclick="show('accPop')">СОЗДАТЬ АККАУНТ</button>
+  </div>
+  <div id="projList"></div>
+  <div class="hint">Здесь список всех проектов (.zip). Создай аккаунт, чтобы выложить свой.</div>
+</div>
+
+<!-- Создание аккаунта -->
+<div class="pop" id="accPop">
+  <span class="closeX" onclick="toggle('accPop')">×</span>
+  <h3>Создать аккаунт</h3>
+  <div class="field"><label>Имя</label><input id="r_name" placeholder="Имя"></div>
+  <div class="field"><label>Фамилия</label><input id="r_surname" placeholder="Фамилия"></div>
+  <div class="field"><label>Пароль</label><input id="r_pass" type="password" placeholder="Пароль"></div>
+  <div class="field"><label>Юзернейм</label><input id="r_user" placeholder="username"></div>
+  <button class="btn" style="width:100%" onclick="createAccount()">Создать аккаунт</button>
+</div>
+
+<!-- Мини-меню после регистрации -->
+<div class="pop" id="miniPop">
+  <span class="closeX" onclick="toggle('miniPop')">×</span>
+  <h3 id="miniHello">Меню</h3>
+  <button class="btn" style="width:100%;margin-bottom:10px" onclick="show('searchPop')">ПОИСК</button>
+  <button class="btn" style="width:100%" onclick="show('pubPop')">ВЫЛОЖИТЬ СВОЙ ПРОЕКТ</button>
+</div>
+
+<!-- Выложить проект -->
+<div class="pop" id="pubPop">
+  <span class="closeX" onclick="toggle('pubPop')">×</span>
+  <h3>Выложить проект</h3>
+  <div class="field"><label>Название проекта</label><input id="p_name" placeholder="Мой проект"></div>
+  <div class="field"><label>Файл .zip</label><input id="p_file" type="file" accept=".zip"></div>
+  <button class="btn" style="width:100%" onclick="publish()">Опубликовать</button>
+</div>
+
+<!-- Поиск -->
+<div class="pop" id="searchPop">
+  <span class="closeX" onclick="toggle('searchPop')">×</span>
+  <h3>Поиск</h3>
+  <div class="field"><input id="s_q" placeholder="Аккаунт или проект..." oninput="doSearch()"></div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- Просмотр проекта -->
+<div class="pop" id="projPop">
+  <span class="closeX" onclick="toggle('projPop')">×</span>
+  <h3 id="projTitle">Проект</h3>
+  <div class="hint" id="projAuthor"></div>
+  <button class="btn" style="width:100%;margin-top:14px" id="projDl">Скачать .zip</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let ME = null; // текущий аккаунт в сессии
+
+function toggle(id){ document.querySelectorAll('.pop').forEach(p=>p.classList.remove('open')); const e=document.getElementById(id); if(e) e.classList.toggle('open'); }
+function show(id){ document.querySelectorAll('.pop').forEach(p=>p.classList.remove('open')); document.getElementById(id).classList.add('open'); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function openLink(u){ window.open(u,'_blank'); }
+
+function openAlex(){ window.open('alexb612.html','_blank'); }
+
+function downloadApp(ver){
+  toast('Скачивание Engylsdroid '+ver+'...');
+  const a=document.createElement('a'); a.href='Engylsdroid-'+ver+'.apk'; a.download='Engylsdroid-'+ver+'.apk'; a.click();
+}
+
+function openEngylsop(){
+  toggle('engylsopPop');
+  renderProjects();
+  if(ME){ show('miniPop'); document.getElementById('miniHello').textContent='Привет, '+ME.fulluser; }
+}
+
+async function renderProjects(){
+  const box=document.getElementById('projList'); box.innerHTML='<div class="hint">Загрузка...</div>';
+  try{
+    const r=await fetch('/api/projects'); const list=await r.json();
+    box.innerHTML='';
+    if(list.length===0){ box.innerHTML='<div class="hint">Пока нет проектов.</div>'; return; }
+    list.forEach(p=>{
+      const d=document.createElement('div'); d.className='projItem';
+      d.innerHTML='<div class="meta"><b>'+escapeHtml(p.name)+'</b><br><span class="uname">'+escapeHtml(p.author)+'</span></div>';
+      const b=document.createElement('button'); b.className='btn small'; b.textContent='Открыть';
+      b.onclick=()=>openProject(p.id); d.appendChild(b); box.appendChild(d);
+    });
+  }catch(e){ box.innerHTML='<div class="hint">Ошибка сервера</div>'; }
+}
+
+async function createAccount(){
+  const name=document.getElementById('r_name').value.trim();
+  const surname=document.getElementById('r_surname').value.trim();
+  const pass=document.getElementById('r_pass').value;
+  const user=document.getElementById('r_user').value.trim();
+  if(!name||!surname||!pass||!user){ toast('Заполни все поля'); return; }
+  try{
+    const r=await fetch('/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,surname,pass,user})});
+    const data=await r.json();
+    if(!r.ok){ toast(data.error||'Ошибка'); return; }
+    ME=data;
+    toast('Аккаунт создан: '+data.fulluser);
+    document.getElementById('miniHello').textContent='Привет, '+data.fulluser;
+    show('miniPop');
+  }catch(e){ toast('Сервер недоступен'); }
+}
+
+async function publish(){
+  const name=document.getElementById('p_name').value.trim();
+  const file=document.getElementById('p_file').files[0];
+  if(!name||!file){ toast('Укажи название и .zip файл'); return; }
+  const fd=new FormData();
+  fd.append('name',name);
+  fd.append('author', ME?ME.fulluser:'&anon');
+  fd.append('file',file);
+  try{
+    const r=await fetch('/api/projects',{method:'POST',body:fd});
+    const data=await r.json();
+    if(!r.ok){ toast(data.error||'Ошибка'); return; }
+    toast('Проект опубликован! Видят все');
+    document.getElementById('p_name').value=''; document.getElementById('p_file').value='';
+    show('engylsopPop'); renderProjects();
+  }catch(e){ toast('Сервер недоступен'); }
+}
+
+async function openProject(id){
+  const box=document.getElementById('projTitle');
+  try{
+    const r=await fetch('/api/projects'); const list=await r.json();
+    const p=list.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('projTitle').textContent=p.name;
+    document.getElementById('projAuthor').textContent='Автор: '+p.author;
+    document.getElementById('projDl').onclick=()=>{
+      window.open('/api/projects/'+p.id+'/download','_blank');
+      toast('Скачивание проекта...');
+    };
+    show('projPop');
+  }catch(e){ toast('Ошибка сервера'); }
+}
+
+async function doSearch(){
+  const q=document.getElementById('s_q').value.trim();
+  const box=document.getElementById('searchResults'); box.innerHTML='';
+  if(!q){ return; }
+  try{
+    const [ar,pr]=await Promise.all([
+      fetch('/api/accounts?q='+encodeURIComponent(q)).then(r=>r.json()),
+      fetch('/api/projects?q='+encodeURIComponent(q)).then(r=>r.json())
+    ]);
+    ar.forEach(a=>{
+      const d=document.createElement('div'); d.className='resItem';
+      d.innerHTML='<span class="uname">'+escapeHtml(a.fulluser)+'</span><span>'+escapeHtml(a.name+' '+a.surname)+'</span>';
+      box.appendChild(d);
+    });
+    pr.forEach(p=>{
+      const d=document.createElement('div'); d.className='resItem';
+      d.innerHTML='<span>📦 '+escapeHtml(p.name)+'</span>';
+      const b=document.createElement('button'); b.className='btn small'; b.textContent='Открыть';
+      b.onclick=()=>openProject(p.id); d.appendChild(b); box.appendChild(d);
+    });
+    if(!box.innerHTML) box.innerHTML='<div class="hint">Ничего не найдено.</div>';
+  }catch(e){ box.innerHTML='<div class="hint">Ошибка сервера</div>'; }
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// старт
+renderProjects();
+</script>
+</body>
+</html>
